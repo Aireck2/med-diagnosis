@@ -1,8 +1,8 @@
-"""Immutable domain models for sequential Bayesian diagnostic inference.
+"""Modelos inmutables de dominio para la inferencia diagnóstica bayesiana secuencial.
 
-All probabilities and likelihood ratios are represented as exact rational
-numbers (`fractions.Fraction`) over the finite boolean partition
-Omega = E U E^c, with E cap E^c = empty set.
+Todas las probabilidades se representan como números racionales exactos
+(`fractions.Fraction`) sobre la partición booleana finita
+Omega = E U E^c, con E cap E^c = conjunto vacío.
 """
 
 from __future__ import annotations
@@ -13,20 +13,20 @@ from fractions import Fraction
 
 
 class Observation(StrEnum):
-    """Binary outcome produced by a diagnostic test at discrete stage t >= 1."""
+    """Resultado binario producido por una prueba diagnóstica en la etapa discreta t >= 1."""
 
     POSITIVE = "+"
     NEGATIVE = "-"
 
     @property
     def label_es(self) -> str:
-        """Return neutral clinical Spanish label for UI display."""
+        """Retorna la etiqueta clínica en español neutro para mostrar en la interfaz."""
         return "Positivo (+)" if self is Observation.POSITIVE else "Negativo (-)"
 
 
 @dataclass(frozen=True)
 class Citation:
-    """Official epidemiological or clinical reference backing model parameters."""
+    """Referencia epidemiológica o clínica oficial que respalda los parámetros del modelo."""
 
     cite_key: str
     short_label: str
@@ -37,7 +37,7 @@ class Citation:
 
 @dataclass(frozen=True)
 class PrevalenceScenario:
-    """Initial clinical/symptomatic stratum at t = 0 defining P_0(E)."""
+    """Estrato clínico o sintomático inicial en t = 0 que define P_0(E)."""
 
     scenario_id: int
     pathology_slug: str
@@ -47,6 +47,7 @@ class PrevalenceScenario:
     display_order: int
 
     def __post_init__(self) -> None:
+        # Validar que la probabilidad previa P_0(E) pertenezca estrictamente a (0, 1)
         if not (Fraction(0) < self.prior < Fraction(1)):
             raise ValueError(
                 f"Prior probability P_0(E) must be strictly in (0, 1), got {self.prior!r}"
@@ -54,18 +55,13 @@ class PrevalenceScenario:
 
     @property
     def complement(self) -> Fraction:
-        """Return healthy complement probability P_0(E^c) = 1 - P_0(E)."""
+        """Retorna la probabilidad del complemento sano P_0(E^c) = 1 - P_0(E)."""
         return Fraction(1) - self.prior
-
-    @property
-    def initial_odds(self) -> Fraction:
-        """Return initial prior odds P_0(E) / P_0(E^c)."""
-        return self.prior / self.complement
 
 
 @dataclass(frozen=True)
 class DiagnosticTestSpec:
-    """Clinical performance specification of a diagnostic test."""
+    """Especificación de rendimiento clínico de una prueba diagnóstica."""
 
     test_id: int
     pathology_slug: str
@@ -76,6 +72,7 @@ class DiagnosticTestSpec:
     biological_mechanism: str
 
     def __post_init__(self) -> None:
+        # Validar que sensibilidad y especificidad estén dentro de (0, 1]
         if not (Fraction(0) < self.sensitivity <= Fraction(1)):
             raise ValueError(f"Sensitivity P(+|E) must be in (0, 1], got {self.sensitivity!r}")
         if not (Fraction(0) < self.specificity <= Fraction(1)):
@@ -83,29 +80,18 @@ class DiagnosticTestSpec:
 
     @property
     def false_positive_rate(self) -> Fraction:
-        """Return P(+|E^c) = 1 - Specificity."""
+        """Retorna la tasa de falsos positivos P(+|E^c) = 1 - Especificidad."""
         return Fraction(1) - self.specificity
 
     @property
     def false_negative_rate(self) -> Fraction:
-        """Return P(-|E) = 1 - Sensitivity."""
+        """Retorna la tasa de falsos negativos P(-|E) = 1 - Sensibilidad."""
         return Fraction(1) - self.sensitivity
-
-    @property
-    def positive_likelihood_ratio(self) -> Fraction | None:
-        """Return LR(+) = P(+|E) / P(+|E^c), or None if specificity == 1."""
-        fpr = self.false_positive_rate
-        return None if fpr == 0 else self.sensitivity / fpr
-
-    @property
-    def negative_likelihood_ratio(self) -> Fraction:
-        """Return LR(-) = P(-|E) / P(-|E^c)."""
-        return self.false_negative_rate / self.specificity
 
 
 @dataclass(frozen=True)
 class PathologyProfile:
-    """Complete epidemiological profile for a target pathology."""
+    """Perfil epidemiológico completo de una patología de estudio."""
 
     slug: str
     name: str
@@ -118,7 +104,7 @@ class PathologyProfile:
 
 @dataclass(frozen=True)
 class TestApplication:
-    """A single test applied at stage t with a binary observation (+ or -)."""
+    """Aplicación individual de una prueba en la etapa t con observación binaria (+ o -)."""
 
     __test__ = False
 
@@ -128,7 +114,7 @@ class TestApplication:
 
 @dataclass(frozen=True)
 class NaturalFrequencyBreakdown:
-    """Natural frequency partition over a finite cohort |Omega| = cohort_size."""
+    """Partición de frecuencias naturales sobre una cohorte finita |Omega| = cohort_size."""
 
     step_index: int
     stage_label: str
@@ -151,7 +137,7 @@ class NaturalFrequencyBreakdown:
 
     @property
     def exact_posterior_from_counts(self) -> Fraction:
-        """Compute posterior directly from exact subpopulation counts."""
+        """Calcula la probabilidad posterior directamente del cociente exacto de subpoblaciones."""
         if self.observation is None:
             return self.entering_prior
         if self.observation is Observation.POSITIVE:
@@ -167,7 +153,7 @@ class NaturalFrequencyBreakdown:
 
 @dataclass(frozen=True)
 class BayesianStepResult:
-    """Complete state of a single transition from t - 1 to t under Bayes' Theorem."""
+    """Estado completo de una transición individual de t - 1 a t bajo el Teorema de Bayes."""
 
     step_index: int
     application: TestApplication
@@ -178,10 +164,6 @@ class BayesianStepResult:
     joint_disease: Fraction
     joint_healthy: Fraction
     marginal_observation_prob: Fraction
-    likelihood_ratio: Fraction
-    cumulative_likelihood_ratio: Fraction
-    prior_odds: Fraction
-    posterior_odds: Fraction
     posterior: Fraction
     posterior_complement: Fraction
     belief_delta: Fraction
@@ -189,7 +171,7 @@ class BayesianStepResult:
 
 @dataclass(frozen=True)
 class SimulationTrace:
-    """Complete sequential trajectory from t = 0 through t = n."""
+    """Trayectoria secuencial completa desde t = 0 hasta t = n."""
 
     pathology_slug: str
     pathology_name: str
@@ -200,43 +182,38 @@ class SimulationTrace:
 
     @property
     def initial_prior(self) -> Fraction:
-        """Return P_0(E) at t = 0."""
+        """Retorna P_0(E) en la etapa inicial t = 0."""
         return self.scenario.prior
 
     @property
     def final_posterior(self) -> Fraction:
-        """Return P_n(E) after the last applied test (or P_0(E) if no tests)."""
+        """Retorna P_n(E) tras la última prueba aplicada (o P_0(E) si no hay pruebas)."""
         return self.steps[-1].posterior if self.steps else self.scenario.prior
 
     @property
     def final_complement(self) -> Fraction:
-        """Return P_n(E^c) = 1 - P_n(E)."""
+        """Retorna el complemento sano final P_n(E^c) = 1 - P_n(E)."""
         return Fraction(1) - self.final_posterior
 
     @property
     def total_belief_shift(self) -> Fraction:
-        """Return net change P_n(E) - P_0(E)."""
+        """Retorna el cambio neto acumulado P_n(E) - P_0(E)."""
         return self.final_posterior - self.initial_prior
 
     @property
-    def cumulative_likelihood_ratio(self) -> Fraction:
-        """Return product of likelihood ratios across all applied steps."""
-        return self.steps[-1].cumulative_likelihood_ratio if self.steps else Fraction(1, 1)
-
-    @property
     def probabilities_by_stage(self) -> tuple[Fraction, ...]:
-        """Return tuple (P_0(E), P_1(E), ..., P_n(E))."""
+        """Retorna la tupla ordenada (P_0(E), P_1(E), ..., P_n(E))."""
         return (self.scenario.prior, *(s.posterior for s in self.steps))
 
     @property
     def complements_by_stage(self) -> tuple[Fraction, ...]:
-        """Return tuple (P_0(E^c), P_1(E^c), ..., P_n(E^c))."""
+        """Retorna la tupla ordenada (P_0(E^c), P_1(E^c), ..., P_n(E^c))."""
         return tuple(Fraction(1) - p for p in self.probabilities_by_stage)
 
 
 @dataclass(frozen=True)
 class ParameterMatrixRow:
-    """Flat summary row matching Table 1 of MateDiscreta.pdf."""
+    """Fila resumen plana equivalente a la Tabla 1 de MateDiscreta.pdf."""
 
     pathology_slug: str
     pathology_name: str

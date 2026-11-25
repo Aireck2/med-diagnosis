@@ -1,4 +1,4 @@
-"""Pure rational domain layer for Sequential Bayesian Inference."""
+"""Capa de dominio racional pura para la Inferencia Bayesiana Secuencial."""
 
 from med_diagnosis.domain.bayes import (
     apply_bayes_step,

@@ -1,4 +1,4 @@
-"""Tests for natural frequency cohort decomposition over finite sample space Omega."""
+"""Pruebas para la descomposición en frecuencias naturales sobre el espacio muestral Omega."""
 
 from __future__ import annotations
 
@@ -13,9 +13,10 @@ from med_diagnosis.domain.models import Observation
 
 
 def test_natural_frequencies_conserve_population_and_match_bayes_posterior() -> None:
+    """Verifica la conservación de la población total y la equivalencia con Bayes."""
     repo = load_default_repository()
     tb = repo.get_pathology("tb")
-    scenario = tb.scenarios[0]  # 0.15%
+    scenario = tb.scenarios[0]  # 0.15 %
     seq = build_guided_sequence(
         tb.tests,
         observations=(Observation.POSITIVE, Observation.NEGATIVE, Observation.POSITIVE),
@@ -28,7 +29,7 @@ def test_natural_frequencies_conserve_population_and_match_bayes_posterior() -> 
         cohort_size=10_000,
     )
 
-    assert len(trace.frequencies) == 4  # t=0 plus 3 test stages
+    assert len(trace.frequencies) == 4  # t=0 más las 3 etapas de prueba
 
     t0 = trace.frequencies[0]
     assert t0.step_index == 0
@@ -50,6 +51,7 @@ def test_natural_frequencies_conserve_population_and_match_bayes_posterior() -> 
 
 
 def test_compute_natural_frequencies_rejects_non_positive_cohort() -> None:
+    """Verifica que compute_natural_frequencies rechace cohortes menores o iguales a cero."""
     with pytest.raises(ValueError, match="Cohort size"):
         compute_natural_frequencies(
             initial_prior=Fraction(15, 1000),

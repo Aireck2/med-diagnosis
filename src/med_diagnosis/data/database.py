@@ -1,8 +1,8 @@
-"""SQLite database builder and repository adapter for epidemiological parameters.
+"""Constructor de base de datos SQLite y repositorio de parámetros epidemiológicos.
 
-Seeds and queries a normalized 3NF SQLite database from `schema.sql` and
-`epidemiology_seed.json`, verifying exact rational consistency with Table 1
-of MateDiscreta.pdf.
+Siembra y consulta una base de datos relacional SQLite en 3FN a partir de
+`schema.sql` y `epidemiology_seed.json`, verificando la consistencia racional
+exacta respecto a la Tabla 1 de MateDiscreta.pdf.
 """
 
 from __future__ import annotations
@@ -31,12 +31,13 @@ def _populate_connection(
     schema_sql: str,
     seed_payload: dict[str, object],
 ) -> None:
-    """Apply DDL schema and insert validated seed records into a SQLite connection."""
+    """Aplica el esquema DDL e inserta los registros validados de la semilla en SQLite."""
     conn.execute("PRAGMA foreign_keys = ON;")
     conn.executescript(schema_sql)
     conn.execute("PRAGMA foreign_keys = ON;")
 
     with conn:
+        # Limpiar tablas respetando el orden de claves foráneas antes de sembrar
         conn.execute("DELETE FROM pathology_citations;")
         conn.execute("DELETE FROM diagnostic_tests;")
         conn.execute("DELETE FROM prevalence_scenarios;")
@@ -107,6 +108,7 @@ def _populate_connection(
                 )
 
             for test in pathology["tests"]:
+                # Verificar invariante de Tabla 1: P(+|E^c) = 1 - Especificidad
                 sens = Fraction(int(test["sensitivity_num"]), int(test["sensitivity_den"]))
                 spec = Fraction(int(test["specificity_num"]), int(test["specificity_den"]))
                 expected_fp = Fraction(int(test["expected_fp_num"]), int(test["expected_fp_den"]))
@@ -144,7 +146,7 @@ def build_epidemiology_database(
     schema_path: Path = DEFAULT_SCHEMA_PATH,
     seed_path: Path = DEFAULT_SEED_PATH,
 ) -> Path:
-    """Create or rebuild the SQLite epidemiological database file on disk."""
+    """Crea o reconstruye el archivo SQLite de la base de datos epidemiológica en disco."""
     schema_sql = schema_path.read_text(encoding="utf-8")
     seed_payload = json.loads(seed_path.read_text(encoding="utf-8"))
     db_path.parent.mkdir(parents=True, exist_ok=True)
@@ -158,14 +160,13 @@ def build_epidemiology_database(
 
 
 class SqliteEpidemiologyRepository:
-    """Read-only repository querying the epidemiological SQLite database."""
+    """Repositorio de solo lectura que consulta la base de datos epidemiológica SQLite."""
 
     def __init__(self, db_path: Path | None = None) -> None:
         self._db_path = db_path
         self._memory_conn: sqlite3.Connection | None = None
         if db_path is None or not db_path.exists():
-            # Fallback to an in-memory SQLite instance seeded deterministically
-            # so read-only cloud deployments never fail even if .db is missing.
+            # Respaldo en memoria para entornos cloud con sistema de archivos de solo lectura
             schema_sql = DEFAULT_SCHEMA_PATH.read_text(encoding="utf-8")
             seed_payload = json.loads(DEFAULT_SEED_PATH.read_text(encoding="utf-8"))
             conn = sqlite3.connect(":memory:", check_same_thread=False)
@@ -174,7 +175,7 @@ class SqliteEpidemiologyRepository:
             self._memory_conn = conn
 
     def _connect(self) -> tuple[sqlite3.Connection, bool]:
-        """Return (connection, should_close)."""
+        """Retorna la tupla (conexión SQLite activa, indicador de cierre al terminar)."""
         if self._memory_conn is not None:
             return self._memory_conn, False
         assert self._db_path is not None
@@ -184,7 +185,7 @@ class SqliteEpidemiologyRepository:
         return conn, True
 
     def list_pathologies(self) -> tuple[PathologyProfile, ...]:
-        """Return all pathologies ordered by display_order."""
+        """Retorna todas las patologías ordenadas por display_order."""
         conn, should_close = self._connect()
         try:
             rows = conn.execute(
@@ -196,7 +197,7 @@ class SqliteEpidemiologyRepository:
                 conn.close()
 
     def get_pathology(self, slug: str) -> PathologyProfile:
-        """Load complete PathologyProfile with scenarios, tests, and citations."""
+        """Carga el perfil completo de una patología con sus estratos, pruebas y citas."""
         conn, should_close = self._connect()
         try:
             p_row = conn.execute(
@@ -291,7 +292,7 @@ class SqliteEpidemiologyRepository:
                 conn.close()
 
     def list_all_citations(self) -> tuple[Citation, ...]:
-        """Return all bibliographic references ordered alphabetically by short_label."""
+        """Retorna todas las referencias bibliográficas ordenadas por etiqueta corta."""
         conn, should_close = self._connect()
         try:
             rows = conn.execute(
@@ -316,7 +317,7 @@ class SqliteEpidemiologyRepository:
                 conn.close()
 
     def list_parameter_matrix(self) -> tuple[ParameterMatrixRow, ...]:
-        """Return flat parameter matrix matching Table 1 of MateDiscreta.pdf."""
+        """Retorna la matriz plana de parámetros equivalente a la Tabla 1 de MateDiscreta.pdf."""
         rows: list[ParameterMatrixRow] = []
         for profile in self.list_pathologies():
             priors_summary = " · ".join(
@@ -344,7 +345,7 @@ class SqliteEpidemiologyRepository:
 
 
 def load_default_repository() -> SqliteEpidemiologyRepository:
-    """Return a repository backed by the packaged SQLite database (or seeded memory fallback)."""
+    """Retorna el repositorio conectado a la base SQLite empaquetada (o respaldo en memoria)."""
     if DEFAULT_DB_PATH.exists():
         return SqliteEpidemiologyRepository(DEFAULT_DB_PATH)
     return SqliteEpidemiologyRepository(None)

@@ -1,4 +1,4 @@
-"""Presentation helpers, LaTeX math generators, presets, and Plotly charts."""
+"""Utilidades de presentación, generadores LaTeX, casos demostrativos y gráficos Plotly."""
 
 from med_diagnosis.ui.charts import (
     build_bayesian_evolution_chart,
@@ -8,7 +8,6 @@ from med_diagnosis.ui.charts import (
 from med_diagnosis.ui.formatting import (
     format_fraction,
     format_integer,
-    format_likelihood_ratio,
     format_percentage,
     format_signed_percentage_delta,
 )
@@ -31,7 +30,6 @@ __all__ = [
     "build_step_walkthroughs",
     "format_fraction",
     "format_integer",
-    "format_likelihood_ratio",
     "format_percentage",
     "format_signed_percentage_delta",
     "list_clinical_presets",

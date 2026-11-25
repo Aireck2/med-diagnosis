@@ -1,11 +1,14 @@
-"""Step-by-step LaTeX mathematical demonstration generator from t = 0 to t = n.
+"""Generador de demostraciones matemáticas LaTeX paso a paso desde t = 0 hasta t = n.
 
-Produces symbolic, fractional, and percentage substitutions for:
-1. Initial symptomatic/epidemiological stratum at t = 0: boolean partition
-   Omega = E U E^c, prior P_0(E), complement P_0(E^c), initial odds, and cohort split.
-2. Each sequential diagnostic test application t >= 1: prior inheritance,
-   conditional likelihoods P(O_t | E) and P(O_t | E^c), Law of Total Probability
-   P(O_t), Bayes recurrence ratio, and equivalent Likelihood Ratio update.
+Produce sustituciones simbólicas, fraccionarias y porcentuales alineadas con
+MateDiscreta.pdf Sección 1.3:
+1. Estrato sintomático o epidemiológico inicial en t = 0: partición booleana
+   Omega = E U E^c, probabilidad previa P_0(E), complemento P_0(E^c) y cohorte base.
+2. Cada aplicación secuencial de prueba diagnóstica t >= 1:
+   - Paso 1: Herencia de la probabilidad previa P_{t-1}(E) y P_{t-1}(E^c).
+   - Paso 2: Verosimilitudes condicionales P(O_t | E) y P(O_t | E^c).
+   - Paso 3: Ley de la Probabilidad Total P(O_t).
+   - Paso 4: Regla de recurrencia del Teorema de Bayes P_t(E) = P(E | O_t).
 """
 
 from __future__ import annotations
@@ -17,7 +20,6 @@ from med_diagnosis.ui.formatting import (
     format_fraction,
     format_integer,
     format_latex_fraction,
-    format_likelihood_ratio,
     format_percentage,
     format_signed_percentage_delta,
 )
@@ -25,18 +27,17 @@ from med_diagnosis.ui.formatting import (
 
 @dataclass(frozen=True)
 class InitialStratumWalkthrough:
-    """Mathematical demonstration of the selected t = 0 symptomatic stratum."""
+    """Demostración matemática de la etapa inicial t = 0 para el estrato seleccionado."""
 
     title: str
     clinical_description: str
     partition_latex: str
-    odds_latex: str
     natural_frequency_summary: str
 
 
 @dataclass(frozen=True)
 class StepMathWalkthrough:
-    """Complete algebraic walkthrough for a single test transition t - 1 -> t."""
+    """Desglose algebraico en 4 pasos para una transición individual de t - 1 a t."""
 
     step_index: int
     title: str
@@ -45,31 +46,24 @@ class StepMathWalkthrough:
     likelihood_latex: str
     total_probability_latex: str
     bayes_substitution_latex: str
-    odds_check_latex: str
     natural_frequency_check: str
 
 
 def build_initial_stratum_walkthrough(
     trace: SimulationTrace,
 ) -> InitialStratumWalkthrough:
-    """Build the t = 0 formal demonstration card for the selected symptomatic stratum."""
+    """Construye la tarjeta de demostración formal en t = 0 para el estrato sintomático."""
     scenario = trace.scenario
     p0_frac = format_latex_fraction(scenario.prior)
     p0_pct = format_percentage(scenario.prior).replace("%", "\\%")
     q0_frac = format_latex_fraction(scenario.complement)
     q0_pct = format_percentage(scenario.complement).replace("%", "\\%")
 
+    # Expresión de la partición disjunta sobre el espacio muestral finito Omega
     partition_latex = (
         f"\\Omega = E \\cup E^c, \\quad E \\cap E^c = \\emptyset \\implies "
         f"P_0(E) = {p0_frac} = {p0_pct}, \\quad "
         f"P_0(E^c) = 1 - P_0(E) = {q0_frac} = {q0_pct}"
-    )
-
-    odds0_frac = format_latex_fraction(scenario.initial_odds)
-    odds0_dec = f"{float(scenario.initial_odds):.4f}"
-    odds_latex = (
-        f"\\text{{Odds}}_0(E) = \\frac{{P_0(E)}}{{P_0(E^c)}} = "
-        f"\\frac{{{p0_frac}}}{{{q0_frac}}} = {odds0_frac} \\approx {odds0_dec}"
     )
 
     f0 = trace.frequencies[0]
@@ -84,7 +78,6 @@ def build_initial_stratum_walkthrough(
         title=f"Etapa Base t = 0 — Estrato Sintomático/Epidemiológico: {scenario.stratum_name}",
         clinical_description=scenario.clinical_description,
         partition_latex=partition_latex,
-        odds_latex=odds_latex,
         natural_frequency_summary=summary,
     )
 
@@ -92,7 +85,7 @@ def build_initial_stratum_walkthrough(
 def build_step_walkthroughs(
     trace: SimulationTrace,
 ) -> tuple[StepMathWalkthrough, ...]:
-    """Build step-by-step LaTeX demonstrations for each applied diagnostic test t >= 1."""
+    """Construye las demostraciones LaTeX paso a paso para cada prueba aplicada t >= 1."""
     cards: list[StepMathWalkthrough] = []
 
     for step, freq in zip(trace.steps, trace.frequencies[1:], strict=True):
@@ -101,6 +94,7 @@ def build_step_walkthroughs(
         obs = step.application.observation
         obs_sym = f"+_{t}" if obs is Observation.POSITIVE else f"-_{t}"
 
+        # Paso 1: Probabilidad a priori heredada de la etapa t - 1
         prior_ltx = format_latex_fraction(step.prior)
         prior_pct = format_percentage(step.prior).replace("%", "\\%")
         prior_comp_ltx = format_latex_fraction(step.prior_complement)
@@ -112,6 +106,7 @@ def build_step_walkthroughs(
             f"{prior_comp_ltx} \\approx {prior_comp_pct}"
         )
 
+        # Paso 2: Verosimilitudes condicionales según resultado positivo o negativo
         like_e_ltx = format_latex_fraction(step.likelihood_disease)
         like_e_pct = format_percentage(step.likelihood_disease).replace("%", "\\%")
         like_ec_ltx = format_latex_fraction(step.likelihood_healthy)
@@ -129,6 +124,7 @@ def build_step_walkthroughs(
             f"P({obs_sym} \\mid E^c) = {ec_rule} = {like_ec_ltx} = {like_ec_pct}"
         )
 
+        # Paso 3: Ley de la Probabilidad Total P(O_t)
         joint_e_ltx = format_latex_fraction(step.joint_disease)
         joint_ec_ltx = format_latex_fraction(step.joint_healthy)
         marginal_ltx = format_latex_fraction(step.marginal_observation_prob)
@@ -142,6 +138,7 @@ def build_step_walkthroughs(
             f"{joint_e_ltx} + {joint_ec_ltx} = {marginal_ltx} \\approx {marginal_pct}"
         )
 
+        # Paso 4: Sustitución en la fórmula de recurrencia del Teorema de Bayes
         post_ltx = format_latex_fraction(step.posterior)
         post_pct = format_percentage(step.posterior).replace("%", "\\%")
         delta_str = format_signed_percentage_delta(step.belief_delta)
@@ -153,18 +150,7 @@ def build_step_walkthroughs(
             f"{post_ltx} \\approx {post_pct} \\quad (\\Delta P_{t} = \\text{{{delta_str}}})"
         )
 
-        lr_ltx = format_latex_fraction(step.likelihood_ratio)
-        lr_dec = format_likelihood_ratio(step.likelihood_ratio)
-        cum_lr_dec = format_likelihood_ratio(step.cumulative_likelihood_ratio)
-        post_odds_ltx = format_latex_fraction(step.posterior_odds)
-
-        odds_check_latex = (
-            f"LR({obs_sym}) = \\frac{{P({obs_sym} \\mid E)}}{{P({obs_sym} \\mid E^c)}} = "
-            f"{lr_ltx} \\approx {lr_dec}, \\quad "
-            f"\\text{{Odds}}_{t}(E) = \\text{{Odds}}_0(E) \\cdot \\prod_{{k=1}}^{{{t}}} LR(O_k) = "
-            f"{post_odds_ltx} \\quad (LR_{{\\text{{acum}}}} \\approx {cum_lr_dec})"
-        )
-
+        # Resumen de verificación intuitiva mediante conteo de frecuencias naturales
         post_frac_str = format_fraction(step.posterior)
         post_pct_str = format_percentage(step.posterior)
         if obs is Observation.POSITIVE:
@@ -195,7 +181,6 @@ def build_step_walkthroughs(
                 likelihood_latex=likelihood_latex,
                 total_probability_latex=total_probability_latex,
                 bayes_substitution_latex=bayes_substitution_latex,
-                odds_check_latex=odds_check_latex,
                 natural_frequency_check=nat_check,
             )
         )

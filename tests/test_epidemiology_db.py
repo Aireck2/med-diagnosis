@@ -1,4 +1,4 @@
-"""Tests for the SQLite epidemiological database and repository (MateDiscreta.pdf Table 1)."""
+"""Pruebas para la base de datos epidemiológica SQLite y repositorio (Tabla 1 MateDiscreta.pdf)."""
 
 from __future__ import annotations
 
@@ -16,6 +16,7 @@ from med_diagnosis.data.database import (
 
 
 def test_default_repository_loads_all_three_pathologies() -> None:
+    """Verifica que el repositorio por defecto cargue las 3 patologías del estudio."""
     repo = load_default_repository()
     pathologies = repo.list_pathologies()
 
@@ -28,6 +29,7 @@ def test_default_repository_loads_all_three_pathologies() -> None:
 
 
 def test_covid19_parameters_match_table_1_exact_fractions() -> None:
+    """Verifica que los parámetros de COVID-19 coincidan exactamente con la Tabla 1."""
     repo = load_default_repository()
     covid = repo.get_pathology("covid19")
 
@@ -72,6 +74,7 @@ def test_covid19_parameters_match_table_1_exact_fractions() -> None:
 
 
 def test_tb_parameters_match_table_1_exact_fractions() -> None:
+    """Verifica que los parámetros de Tuberculosis Pulmonar coincidan con la Tabla 1."""
     repo = load_default_repository()
     tb = repo.get_pathology("tb")
 
@@ -113,6 +116,7 @@ def test_tb_parameters_match_table_1_exact_fractions() -> None:
 
 
 def test_dengue_parameters_match_table_1_exact_fractions() -> None:
+    """Verifica que los parámetros de Dengue coincidan exactamente con la Tabla 1."""
     repo = load_default_repository()
     dengue = repo.get_pathology("dengue")
 
@@ -152,6 +156,7 @@ def test_dengue_parameters_match_table_1_exact_fractions() -> None:
 
 
 def test_database_totals_and_relational_constraints(tmp_path: Path) -> None:
+    """Verifica los totales de registros y las restricciones CHECK y FOREIGN KEY de SQLite."""
     db_file = tmp_path / "test_epidemiology.db"
     build_epidemiology_database(db_file)
     repo = SqliteEpidemiologyRepository(db_file)

@@ -1,8 +1,8 @@
-"""Natural frequency cohort decomposition over the finite sample space Omega.
+"""Descomposición en frecuencias naturales sobre el espacio muestral finito Omega.
 
-Translates abstract rational probabilities into concrete expected and rounded
-whole-person counts over a cohort |Omega| = cohort_size (default 10,000),
-preserving exact partition conservation invariants:
+Traduce probabilidades racionales abstractas en conteos esperados y enteros
+de personas sobre una cohorte |Omega| = cohort_size (por defecto 10 000),
+preservando los invariantes exactos de partición:
     E + E^c == cohort_size
     TP_t + FN_t == E
     FP_t + TN_t == E^c
@@ -20,7 +20,7 @@ from med_diagnosis.domain.models import (
 
 
 def _round_complement_pair(exact_first: Fraction, total_int: int) -> tuple[int, int]:
-    """Round exact_first to nearest integer and set complement so sum == total_int."""
+    """Redondea exact_first al entero más cercano y ajusta el complemento para sumar total_int."""
     first_int = max(0, min(total_int, int(round(float(exact_first)))))
     second_int = total_int - first_int
     return first_int, second_int
@@ -32,12 +32,13 @@ def compute_natural_frequencies(
     cohort_size: int = 10_000,
     initial_label: str = "Etapa t = 0 (Estrato Inicial)",
 ) -> tuple[NaturalFrequencyBreakdown, ...]:
-    """Build natural frequency breakdowns for t = 0 and each sequential test step t >= 1."""
+    """Construye el desglose de frecuencias naturales para t = 0 y cada etapa t >= 1."""
     if cohort_size <= 0:
         raise ValueError(f"Cohort size must be positive, got {cohort_size}")
     if not (Fraction(0) <= initial_prior <= Fraction(1)):
         raise ValueError(f"Initial prior must be in [0, 1], got {initial_prior!r}")
 
+    # Partición base en t = 0 sobre el tamaño de cohorte elegido
     n_frac = Fraction(cohort_size, 1)
     exact_e0 = initial_prior * n_frac
     exact_ec0 = (Fraction(1) - initial_prior) * n_frac
@@ -56,6 +57,7 @@ def compute_natural_frequencies(
         )
     ]
 
+    # En cada etapa t >= 1, subdividir enfermos (VP, FN) y sanos (FP, VN)
     for step in steps:
         test = step.application.test
         obs = step.application.observation

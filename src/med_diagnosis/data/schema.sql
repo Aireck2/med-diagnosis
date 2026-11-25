@@ -1,5 +1,5 @@
--- Relational 3NF schema for the epidemiological & clinical parameter database
--- Source specification: MateDiscreta.pdf (Section 1.2 & Table 1)
+-- Esquema relacional en Tercera Forma Normal (3FN) para la base de datos epidemiológica
+-- Fuente de especificación: MateDiscreta.pdf (Sección 1.2 y Tabla 1)
 
 PRAGMA foreign_keys = ON;
 

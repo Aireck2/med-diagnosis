@@ -1,13 +1,11 @@
-"""Exact rational Sequential Bayesian Inference Engine.
+"""Motor racional exacto de Inferencia Bayesiana Secuencial.
 
-Implements:
-1. Conditional likelihoods P(O_t | E) and P(O_t | E^c).
-2. Law of Total Probability P(O_t) = P(O_t | E) P_{t-1}(E) + P(O_t | E^c) P_{t-1}(E^c).
-3. Bayesian recurrence relation:
+Implementa (MateDiscreta.pdf Sección 1.3):
+1. Verosimilitudes condicionales P(O_t | E) y P(O_t | E^c).
+2. Ley de la Probabilidad Total P(O_t) = P(O_t | E) P_{t-1}(E) + P(O_t | E^c) P_{t-1}(E^c).
+3. Relación de recurrencia bayesiana:
        P_t(E) = P(O_t | E) P_{t-1}(E) / P(O_t)
-4. Equivalent odds & likelihood-ratio recurrence:
-       Odds_t(E) = Odds_0(E) * prod_{k=1}^t LR(O_k)
-5. Guided + Flexible sequence builders and multi-stratum comparisons.
+4. Constructores de secuencias en modo guiado + flexible y comparativas multi-estrato.
 """
 
 from __future__ import annotations
@@ -28,12 +26,12 @@ from med_diagnosis.domain.models import (
 
 
 def likelihood_given_disease(test: DiagnosticTestSpec, obs: Observation) -> Fraction:
-    """Return P(O_t | E): sensitivity if O_t is '+', or 1 - sensitivity if '-'."""
+    """Retorna P(O_t | E): sensibilidad si O_t es '+', o 1 - sensibilidad si es '-'."""
     return test.sensitivity if obs is Observation.POSITIVE else test.false_negative_rate
 
 
 def likelihood_given_healthy(test: DiagnosticTestSpec, obs: Observation) -> Fraction:
-    """Return P(O_t | E^c): 1 - specificity if O_t is '+', or specificity if '-'."""
+    """Retorna P(O_t | E^c): 1 - especificidad si O_t es '+', o especificidad si es '-'."""
     return test.false_positive_rate if obs is Observation.POSITIVE else test.specificity
 
 
@@ -41,9 +39,8 @@ def apply_bayes_step(
     step_index: int,
     prior: Fraction,
     application: TestApplication,
-    cumulative_lr_prev: Fraction = Fraction(1, 1),
 ) -> BayesianStepResult:
-    """Compute a single sequential transition from t - 1 to t using exact Fractions."""
+    """Calcula una transición secuencial de t - 1 a t utilizando fracciones exactas."""
     if step_index < 1:
         raise ValueError(f"step_index must be >= 1, got {step_index}")
     if not (Fraction(0) <= prior <= Fraction(1)):
@@ -52,30 +49,21 @@ def apply_bayes_step(
     test = application.test
     obs = application.observation
 
+    # Probabilidad del complemento sano en la etapa previa: P_{t-1}(E^c) = 1 - P_{t-1}(E)
     prior_comp = Fraction(1) - prior
     p_obs_e = likelihood_given_disease(test, obs)
     p_obs_ec = likelihood_given_healthy(test, obs)
 
+    # Términos conjuntos y Ley de la Probabilidad Total para P(O_t)
     joint_disease = p_obs_e * prior
     joint_healthy = p_obs_ec * prior_comp
     marginal_obs = joint_disease + joint_healthy
     if marginal_obs == 0:
         raise ZeroDivisionError("Marginal observation probability P(O_t) is zero.")
 
+    # Actualización de la creencia mediante la regla de recurrencia del Teorema de Bayes
     posterior = joint_disease / marginal_obs
     posterior_comp = Fraction(1) - posterior
-
-    if p_obs_ec == 0:
-        raise ZeroDivisionError("Likelihood given healthy P(O_t | E^c) is zero.")
-    step_lr = p_obs_e / p_obs_ec
-    cumulative_lr = cumulative_lr_prev * step_lr
-
-    if prior_comp == 0 or posterior_comp == 0:
-        prior_odds = Fraction(0, 1)
-        posterior_odds = Fraction(0, 1)
-    else:
-        prior_odds = prior / prior_comp
-        posterior_odds = posterior / posterior_comp
 
     return BayesianStepResult(
         step_index=step_index,
@@ -87,10 +75,6 @@ def apply_bayes_step(
         joint_disease=joint_disease,
         joint_healthy=joint_healthy,
         marginal_observation_prob=marginal_obs,
-        likelihood_ratio=step_lr,
-        cumulative_likelihood_ratio=cumulative_lr,
-        prior_odds=prior_odds,
-        posterior_odds=posterior_odds,
         posterior=posterior,
         posterior_complement=posterior_comp,
         belief_delta=posterior - prior,
@@ -103,21 +87,19 @@ def run_bayesian_sequence(
     applications: Sequence[TestApplication],
     cohort_size: int = 10_000,
 ) -> SimulationTrace:
-    """Execute a sequential chain of diagnostic tests from t = 0 through t = n."""
+    """Ejecuta una cadena secuencial de pruebas diagnósticas desde t = 0 hasta t = n."""
     current_prior = scenario.prior
-    cumulative_lr = Fraction(1, 1)
     steps: list[BayesianStepResult] = []
 
+    # En cada transición, la probabilidad posterior previa pasa a ser la nueva probabilidad a priori
     for idx, app in enumerate(applications, start=1):
         step_result = apply_bayes_step(
             step_index=idx,
             prior=current_prior,
             application=app,
-            cumulative_lr_prev=cumulative_lr,
         )
         steps.append(step_result)
         current_prior = step_result.posterior
-        cumulative_lr = step_result.cumulative_likelihood_ratio
 
     step_tuple = tuple(steps)
     frequencies = compute_natural_frequencies(
@@ -141,7 +123,7 @@ def build_guided_sequence(
     tests: Sequence[DiagnosticTestSpec],
     observations: Sequence[Observation] | None = None,
 ) -> tuple[TestApplication, ...]:
-    """Build the default guided clinical sequence (1 -> 2 -> ... -> k)."""
+    """Construye la secuencia clínica guiada por defecto (1 -> 2 -> ... -> k)."""
     ordered = sorted(tests, key=lambda t: t.default_step_order)
     if observations is None:
         obs_list = [Observation.POSITIVE] * len(ordered)
@@ -160,7 +142,7 @@ def move_application(
     index: int,
     direction: int,
 ) -> tuple[TestApplication, ...]:
-    """Move a step up (direction = -1) or down (direction = +1) in flexible mode."""
+    """Desplaza una etapa hacia arriba (direction = -1) o hacia abajo (direction = +1)."""
     items = list(applications)
     target = index + direction
     if not (0 <= index < len(items)) or not (0 <= target < len(items)):
@@ -172,7 +154,7 @@ def move_application(
 def reverse_sequence(
     applications: Sequence[TestApplication],
 ) -> tuple[TestApplication, ...]:
-    """Return the reversed test application sequence to demonstrate commutativity."""
+    """Retorna la secuencia de pruebas en orden invertido para demostrar conmutatividad."""
     return tuple(reversed(applications))
 
 
@@ -181,7 +163,7 @@ def compare_across_scenarios(
     applications: Sequence[TestApplication],
     cohort_size: int = 10_000,
 ) -> tuple[SimulationTrace, ...]:
-    """Evaluate the exact same diagnostic sequence across all t = 0 symptomatic strata."""
+    """Evalúa la misma secuencia diagnóstica sobre todos los estratos sintomáticos t = 0."""
     return tuple(
         run_bayesian_sequence(
             pathology=pathology,

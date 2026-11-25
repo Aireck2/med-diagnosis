@@ -1,4 +1,4 @@
-"""Epidemiological SQLite persistence and seed data layer."""
+"""Capa de persistencia SQLite y carga de datos epidemiológicos."""
 
 from med_diagnosis.data.database import (
     SqliteEpidemiologyRepository,

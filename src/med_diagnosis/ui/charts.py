@@ -1,4 +1,4 @@
-"""Plotly figure builders for Bayesian probability evolution and natural frequencies."""
+"""Constructores de figuras Plotly para evolución bayesiana y frecuencias naturales."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ from med_diagnosis.ui.formatting import (
 
 
 def _stage_labels(trace: SimulationTrace) -> list[str]:
-    """Generate human-readable x-axis labels for t = 0 .. n."""
+    """Genera las etiquetas legibles del eje horizontal para las etapas t = 0 .. n."""
     labels = [f"t=0: {trace.scenario.stratum_name}"]
     for step in trace.steps:
         obs_str = step.application.observation.value
@@ -27,7 +27,7 @@ def build_bayesian_evolution_chart(
     trace: SimulationTrace,
     permuted_trace: SimulationTrace | None = None,
 ) -> go.Figure:
-    """Build an interactive curve of P_t(E) and P_t(E^c) over discrete stages t = 0..n."""
+    """Construye la curva interactiva de P_t(E) y P_t(E^c) en las etapas t = 0 .. n."""
     x_labels = _stage_labels(trace)
     p_disease_pct = [float(p) * 100.0 for p in trace.probabilities_by_stage]
     p_healthy_pct = [float(q) * 100.0 for q in trace.complements_by_stage]
@@ -35,6 +35,7 @@ def build_bayesian_evolution_chart(
 
     fig = go.Figure()
 
+    # Curva principal de probabilidad de presencia de la patología P_t(E)
     fig.add_trace(
         go.Scatter(
             x=list(range(len(x_labels))),
@@ -54,6 +55,7 @@ def build_bayesian_evolution_chart(
         )
     )
 
+    # Curva complementaria de ausencia de la patología P_t(E^c) = 1 - P_t(E)
     fig.add_trace(
         go.Scatter(
             x=list(range(len(x_labels))),
@@ -67,6 +69,7 @@ def build_bayesian_evolution_chart(
         )
     )
 
+    # Superposición opcional de la secuencia invertida para verificar conmutatividad
     if permuted_trace is not None and len(permuted_trace.steps) == len(trace.steps):
         perm_labels = _stage_labels(permuted_trace)
         perm_pct = [float(p) * 100.0 for p in permuted_trace.probabilities_by_stage]
@@ -119,7 +122,7 @@ def build_bayesian_evolution_chart(
 def build_multi_stratum_comparison_chart(
     traces_by_stratum: Sequence[SimulationTrace],
 ) -> go.Figure:
-    """Compare how the same diagnostic test chain evolves across all t = 0 strata."""
+    """Compara la evolución de la misma cadena de pruebas entre todos los estratos t = 0."""
     palette = ["#0b6e4f", "#1d4ed8", "#b45309", "#7c3aed"]
     fig = go.Figure()
 
@@ -185,9 +188,10 @@ def build_multi_stratum_comparison_chart(
 def build_natural_frequencies_chart(
     breakdown: NaturalFrequencyBreakdown,
 ) -> go.Figure:
-    """Build a visual bar comparison of natural frequencies over |Omega| = cohort_size."""
+    """Construye un gráfico de barras comparativo de frecuencias naturales sobre |Omega|."""
     fig = go.Figure()
 
+    # Caso etapa inicial t = 0: mostrar únicamente enfermos reales vs. sanos reales
     if breakdown.step_index == 0 or breakdown.observation is None:
         categories = ["Enfermos reales (E)", "Sanos reales (Eᶜ)"]
         counts = [breakdown.rounded_diseased, breakdown.rounded_healthy]

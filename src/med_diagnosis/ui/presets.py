@@ -1,4 +1,4 @@
-"""Pedagogical clinical presets aligned with MateDiscreta.pdf Section 2.2."""
+"""Casos clínicos demostrativos alineados con MateDiscreta.pdf Sección 2.2."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from med_diagnosis.domain.models import Observation, PathologyProfile, TestAppli
 
 @dataclass(frozen=True)
 class ClinicalPreset:
-    """Preconfigured clinical scenario demonstrating a key Bayesian phenomenon."""
+    """Escenario clínico preconfigurado que demuestra un fenómeno clave del Teorema de Bayes."""
 
     key: str
     title: str
@@ -22,7 +22,7 @@ class ClinicalPreset:
         self,
         pathology: PathologyProfile,
     ) -> tuple[TestApplication, ...]:
-        """Resolve step orders against the pathology's diagnostic test catalog."""
+        """Resuelve el orden de las pruebas contra el catálogo diagnóstico de la patología."""
         tests_by_order = {t.default_step_order: t for t in pathology.tests}
         return tuple(
             TestApplication(test=tests_by_order[step_order], observation=obs)
@@ -102,5 +102,5 @@ CLINICAL_PRESETS: tuple[ClinicalPreset, ...] = (
 
 
 def list_clinical_presets() -> tuple[ClinicalPreset, ...]:
-    """Return all preconfigured pedagogical presets."""
+    """Retorna todos los casos clínicos demostrativos preconfigurados."""
     return CLINICAL_PRESETS

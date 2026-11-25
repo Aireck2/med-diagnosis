@@ -1,4 +1,4 @@
-"""AST boundary tests verifying the domain layer has zero external or UI dependencies."""
+"""Pruebas AST de fronteras arquitectónicas: el dominio no tiene dependencias externas ni de UI."""
 
 from __future__ import annotations
 
@@ -9,6 +9,7 @@ FORBIDDEN_TOP_LEVEL_IMPORTS = {"streamlit", "plotly", "sqlite3", "pandas", "nump
 
 
 def test_domain_layer_only_imports_stdlib_and_domain() -> None:
+    """Verifica con AST que med_diagnosis.domain solo importe la biblioteca estándar."""
     domain_dir = Path(__file__).resolve().parents[1] / "src" / "med_diagnosis" / "domain"
     py_files = sorted(domain_dir.glob("*.py"))
     assert py_files, "Expected Python modules in med_diagnosis.domain"

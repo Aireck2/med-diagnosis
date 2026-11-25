@@ -1,9 +1,9 @@
-"""Streamlit entrypoint for the Sequential Bayesian Inference Simulator.
+"""Punto de entrada principal en Streamlit para el Simulador de Inferencia Bayesiana Secuencial.
 
-Strictly faithful to MateDiscreta.pdf (Sections 1.1-1.4, Table 1, Section 2),
-with 100% focus on Bayes' Theorem, exact rational Fraction arithmetic,
-step-by-step LaTeX walkthroughs from t = 0 through t = n, multi-stratum
-comparisons, and Guided + Flexible test chaining.
+Fiel a MateDiscreta.pdf (Secciones 1.1-1.4, Tabla 1, Sección 2),
+enfocado 100 % en el Teorema de Bayes, aritmética racional exacta con Fraction,
+demostraciones LaTeX paso a paso desde t = 0 hasta t = n, comparativas
+multi-estrato y encadenamiento de pruebas en modo guiado + flexible.
 """
 
 from __future__ import annotations
@@ -33,7 +33,6 @@ from med_diagnosis.ui.charts import (
 from med_diagnosis.ui.formatting import (
     format_fraction,
     format_integer,
-    format_likelihood_ratio,
     format_percentage,
     format_signed_percentage_delta,
 )
@@ -46,12 +45,12 @@ from med_diagnosis.ui.presets import list_clinical_presets
 
 @st.cache_resource
 def get_repository() -> SqliteEpidemiologyRepository:
-    """Load the read-only SQLite epidemiological repository once per process."""
+    """Carga el repositorio epidemiológico SQLite de solo lectura una sola vez por proceso."""
     return load_default_repository()
 
 
 def _init_sequence_state(pathology: PathologyProfile) -> None:
-    """Initialize or reset session state when pathology changes."""
+    """Inicializa o reinicia el estado de la secuencia en sesión cuando cambia la patología."""
     current_slug = st.session_state.get("active_pathology_slug")
     if current_slug != pathology.slug or "sequence_items" not in st.session_state:
         st.session_state["active_pathology_slug"] = pathology.slug
@@ -64,7 +63,7 @@ def _resolve_applications(
     pathology: PathologyProfile,
     raw_items: list[tuple[int, str]],
 ) -> tuple[TestApplication, ...]:
-    """Convert session state (step_order, obs_value) tuples into domain TestApplications."""
+    """Convierte las tuplas (step_order, obs_value) de sesión en objetos TestApplication."""
     tests_by_order = {t.default_step_order: t for t in pathology.tests}
     resolved: list[TestApplication] = []
     for step_order, obs_val in raw_items:
@@ -79,7 +78,7 @@ def _resolve_applications(
 
 
 def main() -> None:
-    """Render the interactive Sequential Bayesian Inference Simulator."""
+    """Renderiza el Simulador de Inferencia Bayesiana Secuencial interactivo."""
     st.set_page_config(
         page_title="Simulador de Inferencia Bayesiana Secuencial",
         page_icon="🧬",
@@ -345,9 +344,12 @@ def main() -> None:
         help=f"Fracción exacta: {format_fraction(trace.final_complement)}",
     )
     k4.metric(
-        label="Razón de Verosimilitud Acumulada (∏ LRₜ)",
-        value=f"{format_likelihood_ratio(trace.cumulative_likelihood_ratio)}×",
-        help="Factor multiplicativo total aplicado sobre los momios iniciales Odds₀(E).",
+        label="Etapas Evaluadas en Secuencia (n)",
+        value=f"{n_steps} prueba(s)",
+        help=(
+            "Cohorte evaluada bajo independencia condicional: "
+            f"|Ω| = {format_integer(cohort_size)} personas."
+        ),
     )
 
     if permuted_trace is not None:
@@ -383,11 +385,9 @@ def main() -> None:
         with st.expander(t0_walk.title, expanded=True):
             st.markdown(f"**Contexto clínico del estrato:** {t0_walk.clinical_description}")
             st.markdown(
-                "**1. Partición booleana del espacio muestral finito ($\\Omega = E \\cup E^c$):**"
+                "**Partición booleana del espacio muestral finito ($\\Omega = E \\cup E^c$):**"
             )
             st.latex(t0_walk.partition_latex)
-            st.markdown("**2. Momios a priori iniciales ($\\text{Odds}_0(E)$):**")
-            st.latex(t0_walk.odds_latex)
             st.info(t0_walk.natural_frequency_summary)
 
         step_walks = build_step_walkthroughs(trace)
@@ -409,11 +409,6 @@ def main() -> None:
                     "**4. Regla de recurrencia del Teorema de Bayes ($P_t(E) = P(E \\mid O_t)$):**"
                 )
                 st.latex(sw.bayes_substitution_latex)
-                st.markdown(
-                    "**5. Verificación equivalente mediante Razón de Verosimilitud "
-                    "($LR_t$) y Momios:**"
-                )
-                st.latex(sw.odds_check_latex)
                 st.caption(sw.natural_frequency_check)
 
     with tab_strata:

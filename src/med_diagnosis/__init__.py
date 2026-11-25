@@ -1,4 +1,4 @@
-"""Sequential Bayesian Inference Simulator package for stepped medical diagnostics."""
+"""Paquete del Simulador de Inferencia Bayesiana Secuencial para diagnóstico médico escalonado."""
 
 __all__ = ["__version__"]
 __version__ = "0.2.0"
