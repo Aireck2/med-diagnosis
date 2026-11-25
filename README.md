@@ -35,7 +35,7 @@ ruff format --check src tests app.py
 
 Sobre un conjunto universo finito de individuos evaluados $\Omega$, se define la partición booleana exacta $\Omega = E \cup E^c$ con $E \cap E^c = \emptyset$, donde $E$ representa la presencia de la patología y $E^c$ su ausencia ($P_0(E) + P_0(E^c) = 1$).
 
-1. **Etapa base ($t = 0$ — Estrato sintomático/epidemiológico):** El perfil clínico inicial seleccionado de la Tabla 1 fija la probabilidad a priori $P_0(E)$ y los momios iniciales $\text{Odds}_0(E) = \frac{P_0(E)}{P_0(E^c)}$.
+1. **Etapa base ($t = 0$ — Estrato sintomático/epidemiológico):** El perfil clínico inicial seleccionado de la Tabla 1 fija la probabilidad a priori $P_0(E)$ y su complemento sano $P_0(E^c) = 1 - P_0(E)$.
 2. **Sucesión discreta de pruebas ($t \in \{1, 2, \dots, n\}$):** En cada paso $t$, la aplicación de una prueba diagnóstica $T_t$ produce una observación binaria $O_t \in \{+_t, -_t\}$.
 3. **Regla de recurrencia bayesiana:** La probabilidad posterior $P_{t-1}(E)$ se hereda como nueva probabilidad a priori y se actualiza mediante el Teorema de Bayes y la Ley de la Probabilidad Total:
 
