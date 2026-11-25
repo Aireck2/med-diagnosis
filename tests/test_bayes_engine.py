@@ -166,10 +166,21 @@ def test_flexible_sequence_reordering_and_reversal_helpers() -> None:
 
 
 def test_apply_bayes_step_validates_prior_bounds() -> None:
-    """Verifica que apply_bayes_step rechace probabilidades a priori fuera de [0, 1]."""
+    """Verifica estabilidad en extremos P_0(E) en {0, 1} y rechazo fuera de [0, 1]."""
     repo = load_default_repository()
     covid = repo.get_pathology("covid19")
-    app = TestApplication(covid.tests[0], Observation.POSITIVE)
+    pcr_pos = TestApplication(covid.tests[2], Observation.POSITIVE)
+    pcr_neg = TestApplication(covid.tests[2], Observation.NEGATIVE)
+
+    step_zero = apply_bayes_step(1, Fraction(0, 1), pcr_pos)
+    assert step_zero.posterior == Fraction(0, 1)
+    assert step_zero.posterior + step_zero.posterior_complement == Fraction(1, 1)
+
+    step_one = apply_bayes_step(1, Fraction(1, 1), pcr_neg)
+    assert step_one.posterior == Fraction(1, 1)
+    assert step_one.posterior + step_one.posterior_complement == Fraction(1, 1)
 
     with pytest.raises(ValueError, match="Prior probability"):
-        apply_bayes_step(1, Fraction(12, 10), app)
+        apply_bayes_step(1, Fraction(12, 10), pcr_pos)
+    with pytest.raises(ValueError, match="Prior probability"):
+        apply_bayes_step(1, Fraction(-1, 10), pcr_pos)

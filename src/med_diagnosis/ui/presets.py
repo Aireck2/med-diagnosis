@@ -89,7 +89,7 @@ CLINICAL_PRESETS: tuple[ClinicalPreset, ...] = (
         pedagogical_focus=(
             "Contrasta cómo una prevalencia a priori elevada en zona con brote estacional activo "
             "(P₀ = 22.0 %) permite que una Prueba Rápida Antígeno NS1 (+) alcance de inmediato "
-            "P₁ = 91.48 %, y con ELISA IgM (+) supere el 99.12 %."
+            "P₁ = 91.47 %, y con ELISA IgM (+) llegue a P₂ = 99.13 %."
         ),
         pathology_slug="dengue",
         stratum_name="Brote estacional",
