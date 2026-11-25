@@ -100,7 +100,7 @@ En la columna izquierda tienes dos formas de empezar:
   1. *Sesgo de Tasa Base en Tuberculosis (0.15 %)*: muestra cómo una radiografía positiva sola da `1.17 %` y cómo las 3 pruebas positivas llevan al `97.17 %`.
   2. *Tamizaje Asintomático en COVID-19 (1.5 %)*: muestra por qué un antígeno positivo en una persona sin síntomas apenas da `55.26 %` (casi como lanzar una moneda) hasta que se confirma con RT-PCR (`99.57 %`).
   3. *Secuencia con Resultados Discordantes en COVID-19 (12.0 %)*: muestra qué pasa cuando el antígeno da `+`, la prueba serológica contradice con `-` y la RT-PCR desempata con `+`.
-  4. *Alta Prevalencia en Brote de Dengue (22.0 %)*: muestra cómo, en pleno brote epidémico, la primera prueba rápida NS1 positiva ya salta al `91.48 %`.
+  4. *Alta Prevalencia en Brote de Dengue (22.0 %)*: muestra cómo, en pleno brote epidémico, la primera prueba rápida NS1 positiva ya salta al `91.47 %` y con ELISA IgM llega al `99.13 %`.
 
 * **Opción B: "Configuración manual / personalizada"**
   1. Elige la **Patología de estudio** (COVID-19, Tuberculosis o Dengue).

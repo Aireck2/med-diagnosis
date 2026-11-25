@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="flujo-operativo-title flujo-operativo-desc" id="flujo-operativo-root">
+        <title id="flujo-operativo-title">Flujo operativo general del simulador</title>
+        <desc id="flujo-operativo-desc">Diagrama de flujo que muestra la carga del catálogo epidemiológico SQLite, la selección entre preset demostrativo o configuración manual, la ejecución del motor bayesiano y el renderizado final con superposición opcional de conmutatividad.</desc>
+        <defs>
+      <style>@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500;600&amp;family=Noto+Serif:ital@0;1&amp;family=Noto+Sans+KR:wght@400;500;600&amp;family=Noto+Serif+KR:wght@400&amp;family=Noto+Sans+TC:wght@400;500;600&amp;family=Noto+Serif+TC:wght@400&amp;display=swap');
+      #flujo-operativo-root { --color-paper:   #f5f5f5;
+      --color-ink:     #2d3142;
+      --color-muted:   #4f5d75;
+      --color-accent:  #bf4520;
+      --font-sans:     'Geist', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Noto Serif', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace; }
+      #flujo-operativo-root { font-family: var(--font-sans); color: var(--color-ink); }
+      #flujo-operativo-root .diagram-container { width: 100%; overflow-x: auto; }
+      @media print {
+#flujo-operativo-root .diagram-container { overflow-x: visible; }
+}</style>
+          <marker id="flujo-operativo-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+          </marker>
+          <marker id="flujo-operativo-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#bf4520"/>
+          </marker>
+          <marker id="flujo-operativo-arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/>
+          </marker>
+        </defs>
+
+        <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+        <!-- 1. Connectors (drawn first, behind masks and nodes) -->
+        <!-- Start -> Load DB -->
+        <line x1="480" y1="88" x2="480" y2="116" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#flujo-operativo-arrow)"/>
+        <!-- Load DB -> Decision 1 -->
+        <line x1="480" y1="168" x2="480" y2="196" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#flujo-operativo-arrow)"/>
+        <!-- Decision 1 -> Preset (SI, right) -->
+        <line x1="600" y1="232" x2="760" y2="232" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#flujo-operativo-arrow)"/>
+        <!-- Decision 1 -> Manual Config (NO, down) -->
+        <line x1="480" y1="268" x2="480" y2="308" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#flujo-operativo-arrow)"/>
+        <!-- Manual Config -> Merge 1 -->
+        <line x1="480" y1="360" x2="480" y2="384" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#flujo-operativo-arrow)"/>
+        <!-- Preset -> Merge 1 -->
+        <path d="M 920,256 V 380 Q 920,388 912,388 H 484" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#flujo-operativo-arrow)"/>
+        <!-- Merge 1 -> Core Bayesian Engine (focal path) -->
+        <line x1="480" y1="392" x2="480" y2="412" stroke="#bf4520" stroke-width="1.4" marker-end="url(#flujo-operativo-arrow-accent)"/>
+        <!-- Core Engine -> Decision 2 -->
+        <line x1="480" y1="464" x2="480" y2="492" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#flujo-operativo-arrow)"/>
+        <!-- Decision 2 -> Reversed Sequence (SI, right) -->
+        <line x1="600" y1="524" x2="760" y2="524" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#flujo-operativo-arrow)"/>
+        <!-- Decision 2 -> Render & End (NO, down) -->
+        <line x1="480" y1="556" x2="480" y2="588" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#flujo-operativo-arrow)"/>
+        <!-- Reversed Sequence -> Render & End (right edge port) -->
+        <path d="M 920,548 V 604 Q 920,612 912,612 H 640" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#flujo-operativo-arrow)"/>
+
+        <!-- 2. Arrow labels on opaque masks (6-10px clear of strokes, clear of nodes) -->
+        <rect x="664" y="212" width="32" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="680" y="221" fill="#5a6580" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">SI</text>
+
+        <rect x="492" y="282" width="32" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="508" y="291" fill="#5a6580" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">NO</text>
+
+        <rect x="664" y="504" width="32" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="680" y="513" fill="#5a6580" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">SI</text>
+
+        <rect x="492" y="566" width="32" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="508" y="575" fill="#5a6580" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">NO</text>
+
+        <!-- 3. Nodes (9 nodes + 1 merge dot) -->
+        <!-- Node 1: Start oval -->
+        <rect x="360" y="40" width="240" height="48" rx="20" fill="#f5f5f5"/>
+        <rect x="360" y="40" width="240" height="48" rx="20" fill="#2d3142" stroke="#2d3142" stroke-width="1" fill-opacity="0.03" stroke-opacity="0.30"/>
+        <text x="480" y="68" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Inicio de simulación</text>
+
+        <!-- Node 2: Load SQLite catalog -->
+        <rect x="320" y="116" width="320" height="52" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="480" y="138" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Cargar catálogo epidemiológico</text>
+        <text x="480" y="156" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">SQLite 3FN · cohorte |Ω| = N</text>
+
+        <!-- Node 3: Decision 1 (Preset?) -->
+        <polygon points="480,196 600,232 480,268 360,232" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="480" y="230" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">¿Usar preset</text>
+        <text x="480" y="244" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">clínico?</text>
+
+        <!-- Node 4: Apply preset -->
+        <rect x="760" y="208" width="320" height="48" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="920" y="228" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Aplicar caso demostrativo</text>
+        <text x="920" y="244" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">fija patología, t=0 y cadena</text>
+
+        <!-- Node 5: Manual / Flexible sequence builder -->
+        <rect x="320" y="308" width="320" height="52" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="480" y="330" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Configurar estrato y secuencia</text>
+        <text x="480" y="348" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">t=0 + modo guiado 1→2→3 o flexible</text>
+
+        <!-- Merge dot -->
+        <circle cx="480" cy="388" r="4" fill="#2d3142"/>
+
+        <!-- Node 6: Core Bayesian Engine (FOCAL CORAL) -->
+        <rect x="320" y="412" width="320" height="52" rx="6" fill="#f5f5f5"/>
+        <rect x="320" y="412" width="320" height="52" rx="6" fill="#bf4520" stroke="#bf4520" stroke-width="1.2" fill-opacity="0.08"/>
+        <text x="480" y="434" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Ejecutar inferencia bayesiana</text>
+        <text x="480" y="452" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">Fraction exacta · multi-estrato · |Ω|</text>
+
+        <!-- Node 7: Decision 2 (Reversed order?) -->
+        <polygon points="480,492 600,524 480,556 360,524" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="480" y="522" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">¿Superponer</text>
+        <text x="480" y="536" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">invertido?</text>
+
+        <!-- Node 8: Evaluate reversed sequence -->
+        <rect x="760" y="500" width="320" height="48" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="920" y="520" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Evaluar orden invertido</text>
+        <text x="920" y="536" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">verifica conmutatividad Tₙ..T₁</text>
+
+        <!-- Node 9: Render outputs & End oval -->
+        <rect x="320" y="588" width="320" height="48" rx="20" fill="#f5f5f5"/>
+        <rect x="320" y="588" width="320" height="48" rx="20" fill="#2d3142" stroke="#2d3142" stroke-width="1" fill-opacity="0.03" stroke-opacity="0.30"/>
+        <text x="480" y="608" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Renderizar tablero interactivo</text>
+        <text x="480" y="624" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">KPIs · curvas Plotly · LaTeX t=0..n</text>
+
+        <!-- 4. Legend (bottom 60px strip: y=660..720) -->
+        <line x1="40" y1="660" x2="1240" y2="660" stroke="#2d3142" stroke-width="0.8" stroke-opacity="0.12"/>
+        <text x="40" y="676" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.18em">LEYENDA · SIMBOLOGÍA DE FLUJO</text>
+
+        <rect x="40" y="688" width="24" height="12" rx="6" fill="#2d3142" stroke="#2d3142" stroke-width="1" fill-opacity="0.03" stroke-opacity="0.30"/>
+        <text x="72" y="698" fill="#4f5d75" font-size="8.5" font-family="'Geist', sans-serif">Inicio / salida final (óvalo)</text>
+
+        <rect x="260" y="688" width="24" height="12" rx="2" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="292" y="698" fill="#4f5d75" font-size="8.5" font-family="'Geist', sans-serif">Proceso determinista (rectángulo)</text>
+
+        <polygon points="508,694 520,688 532,694 520,700" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="544" y="698" fill="#4f5d75" font-size="8.5" font-family="'Geist', sans-serif">Decisión lógica (rombo)</text>
+
+        <circle cx="724" cy="694" r="4" fill="#2d3142"/>
+        <text x="736" y="698" fill="#4f5d75" font-size="8.5" font-family="'Geist', sans-serif">Convergencia de ramas</text>
+
+        <rect x="908" y="688" width="24" height="12" rx="2" fill="#bf4520" stroke="#bf4520" stroke-width="1.2" fill-opacity="0.08"/>
+        <text x="940" y="698" fill="#4f5d75" font-size="8.5" font-family="'Geist', sans-serif">Núcleo matemático focal</text>
+      </svg>
