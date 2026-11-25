@@ -120,6 +120,8 @@ class PathologyProfile:
 class TestApplication:
     """A single test applied at stage t with a binary observation (+ or -)."""
 
+    __test__ = False
+
     test: DiagnosticTestSpec
     observation: Observation
 
