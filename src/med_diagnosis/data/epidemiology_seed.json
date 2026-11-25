@@ -1,0 +1,246 @@
+{
+  "citations": [
+    {
+      "cite_key": "cdc_peru_2024a",
+      "short_label": "CDC Perú (2024a)",
+      "full_reference": "Centro Nacional de Epidemiología, Prevención y Control de Enfermedades [CDC Perú]. (2024a). Sala situacional COVID-19 Perú y boletín epidemiológico del Perú. Ministerio de Salud del Perú.",
+      "pub_year": 2024,
+      "doi_or_url": ""
+    },
+    {
+      "cite_key": "cdc_peru_2024b",
+      "short_label": "CDC Perú (2024b)",
+      "full_reference": "Centro Nacional de Epidemiología, Prevención y Control de Enfermedades [CDC Perú]. (2024b). Sala situacional de dengue en el Perú. Ministerio de Salud del Perú.",
+      "pub_year": 2024,
+      "doi_or_url": ""
+    },
+    {
+      "cite_key": "dinnes_2022",
+      "short_label": "Dinnes et al. (2022)",
+      "full_reference": "Dinnes, J., Sharma, P., Berhane, S., van Wyk, S. S., Nyaaba, N., Domen, J., Taylor, M., Cunningham, J., Davenport, C., Dittrich, S., Emperador, D., Hooft, L., Leeflang, M. M. G., McInnes, M. D. F., Spijker, R., Verbakel, J. Y., Takwoingi, Y., Taylor-Phillips, S., Van den Bruel, A., y Deeks, J. J. (2022). Rapid, point-of-care antigen tests for diagnosis of SARS-CoV-2 infection. Cochrane Database of Systematic Reviews, (7), Artículo CD013705.",
+      "pub_year": 2022,
+      "doi_or_url": "https://doi.org/10.1002/14651858.CD013705.pub3"
+    },
+    {
+      "cite_key": "minsa_2023",
+      "short_label": "MINSA (2023)",
+      "full_reference": "Ministerio de Salud del Perú [MINSA]. (2023). Norma técnica de salud para el cuidado integral de la persona afectada por tuberculosis, familia y comunidad (NTS N° 200-MINSA/DGIESP-2023). Dirección General de Intervenciones Estratégicas en Salud Pública.",
+      "pub_year": 2023,
+      "doi_or_url": ""
+    },
+    {
+      "cite_key": "oms_2021",
+      "short_label": "OMS (2021)",
+      "full_reference": "Organización Mundial de la Salud [OMS]. (2021). Antigen-detection in the diagnosis of SARS-CoV-2 infection: Interim guidance. Organización Mundial de la Salud.",
+      "pub_year": 2021,
+      "doi_or_url": ""
+    },
+    {
+      "cite_key": "oms_2024",
+      "short_label": "OMS (2024)",
+      "full_reference": "Organización Mundial de la Salud [OMS]. (2024). WHO consolidated guidelines on tuberculosis. Module 3: Diagnosis – rapid diagnostics for tuberculosis detection (3.ª ed.). Organización Mundial de la Salud.",
+      "pub_year": 2024,
+      "doi_or_url": ""
+    },
+    {
+      "cite_key": "ops_2022",
+      "short_label": "OPS (2022)",
+      "full_reference": "Organización Panamericana de la Salud [OPS]. (2022). Directrices para el diagnóstico clínico y el tratamiento del dengue, el chikunguña y el zika. Organización Panamericana de la Salud.",
+      "pub_year": 2022,
+      "doi_or_url": ""
+    }
+  ],
+  "pathologies": [
+    {
+      "slug": "covid19",
+      "name": "COVID-19 (SARS-CoV-2)",
+      "target_population": "Población urbana y pacientes IRA",
+      "clinical_context": "Escenarios diferenciados para población general asintomática en tamizaje, pacientes ambulatorios con Infección Respiratoria Aguda (IRA) y contactos intradomiciliarios sintomáticos en Lima Metropolitana.",
+      "display_order": 1,
+      "citations": ["cdc_peru_2024a", "dinnes_2022", "oms_2021"],
+      "scenarios": [
+        {
+          "stratum_name": "Asintomático",
+          "clinical_description": "Población general asintomática evaluada en tamizaje masivo.",
+          "prior_num": 15,
+          "prior_den": 1000,
+          "display_order": 1
+        },
+        {
+          "stratum_name": "Sintomático IRA",
+          "clinical_description": "Pacientes ambulatorios con cuadro clínico de Infección Respiratoria Aguda (IRA).",
+          "prior_num": 120,
+          "prior_den": 1000,
+          "display_order": 2
+        },
+        {
+          "stratum_name": "Contacto estrecho",
+          "clinical_description": "Contactos intradomiciliarios sintomáticos de casos confirmados.",
+          "prior_num": 350,
+          "prior_den": 1000,
+          "display_order": 3
+        }
+      ],
+      "tests": [
+        {
+          "default_step_order": 1,
+          "test_name": "Prueba Rápida de Antígenos",
+          "sensitivity_num": 730,
+          "sensitivity_den": 1000,
+          "specificity_num": 991,
+          "specificity_den": 1000,
+          "expected_fp_num": 9,
+          "expected_fp_den": 1000,
+          "biological_mechanism": "Inmunocromatografía de detección directa de antígenos proteicos de la nucleocápside viral."
+        },
+        {
+          "default_step_order": 2,
+          "test_name": "Prueba Serológica (IgM/IgG)",
+          "sensitivity_num": 680,
+          "sensitivity_den": 1000,
+          "specificity_num": 965,
+          "specificity_den": 1000,
+          "expected_fp_num": 35,
+          "expected_fp_den": 1000,
+          "biological_mechanism": "Evaluación de respuesta inmunológica humoral mediante detección de anticuerpos IgM/IgG."
+        },
+        {
+          "default_step_order": 3,
+          "test_name": "RT-PCR en Tiempo Real",
+          "sensitivity_num": 950,
+          "sensitivity_den": 1000,
+          "specificity_num": 995,
+          "specificity_den": 1000,
+          "expected_fp_num": 5,
+          "expected_fp_den": 1000,
+          "biological_mechanism": "Amplificación molecular de ácidos nucleicos (ARN viral) por retrotranscripción y PCR en tiempo real."
+        }
+      ]
+    },
+    {
+      "slug": "tb",
+      "name": "Tuberculosis Pulmonar (TB)",
+      "target_population": "Entorno urbano Lima / SR",
+      "clinical_context": "Estratos de riesgo en entornos urbanos de alta densidad: población general, pacientes catalogados como Sintomáticos Respiratorios (tos con expectoración por más de 15 días) y contactos domiciliarios de casos activos (NTS N° 200-MINSA/DGIESP-2023).",
+      "display_order": 2,
+      "citations": ["minsa_2023", "oms_2024"],
+      "scenarios": [
+        {
+          "stratum_name": "Población general",
+          "clinical_description": "Tamizaje en población urbana general sin síntomas respiratorios específicos.",
+          "prior_num": 15,
+          "prior_den": 10000,
+          "display_order": 1
+        },
+        {
+          "stratum_name": "Sintomático Resp.",
+          "clinical_description": "Sintomático Respiratorio (SR): paciente con tos y expectoración por más de 15 días.",
+          "prior_num": 45,
+          "prior_den": 1000,
+          "display_order": 2
+        },
+        {
+          "stratum_name": "Contacto TB activo",
+          "clinical_description": "Contacto intradomiciliario o cercano de un paciente con tuberculosis pulmonar activa.",
+          "prior_num": 150,
+          "prior_den": 1000,
+          "display_order": 3
+        }
+      ],
+      "tests": [
+        {
+          "default_step_order": 1,
+          "test_name": "Radiografía de Tórax",
+          "sensitivity_num": 870,
+          "sensitivity_den": 1000,
+          "specificity_num": 890,
+          "specificity_den": 1000,
+          "expected_fp_num": 110,
+          "expected_fp_den": 1000,
+          "biological_mechanism": "Evaluación radiográfica morfológica de infiltrados, cavitaciones o lesiones parenquimatosas pulmonares."
+        },
+        {
+          "default_step_order": 2,
+          "test_name": "Baciloscopía Esputo (AFB)",
+          "sensitivity_num": 650,
+          "sensitivity_den": 1000,
+          "specificity_num": 980,
+          "specificity_den": 1000,
+          "expected_fp_num": 20,
+          "expected_fp_den": 1000,
+          "biological_mechanism": "Microscopía directa de bacilos ácido-alcohol resistentes (BAAR / AFB) en muestra de esputo."
+        },
+        {
+          "default_step_order": 3,
+          "test_name": "GeneXpert MTB/RIF",
+          "sensitivity_num": 890,
+          "sensitivity_den": 1000,
+          "specificity_num": 990,
+          "specificity_den": 1000,
+          "expected_fp_num": 10,
+          "expected_fp_den": 1000,
+          "biological_mechanism": "Amplificación molecular automatizada de ADN de Mycobacterium tuberculosis y detección de resistencia a rifampicina."
+        }
+      ]
+    },
+    {
+      "slug": "dengue",
+      "name": "Dengue (DENV 1–4)",
+      "target_population": "Pacientes febriles en zonas con vector",
+      "clinical_context": "Pacientes con síndrome febril agudo evaluados en contextos fuera de temporada epidémica frente a distritos con brote estacional activo en zonas con presencia del vector Aedes aegypti.",
+      "display_order": 3,
+      "citations": ["cdc_peru_2024b", "ops_2022"],
+      "scenarios": [
+        {
+          "stratum_name": "Fuera de brote",
+          "clinical_description": "Paciente con síndrome febril agudo en zona endémica fuera de temporada epidémica.",
+          "prior_num": 30,
+          "prior_den": 1000,
+          "display_order": 1
+        },
+        {
+          "stratum_name": "Brote estacional",
+          "clinical_description": "Paciente con síndrome febril agudo en distrito con brote epidémico estacional activo.",
+          "prior_num": 220,
+          "prior_den": 1000,
+          "display_order": 2
+        }
+      ],
+      "tests": [
+        {
+          "default_step_order": 1,
+          "test_name": "Prueba Rápida Antígeno NS1",
+          "sensitivity_num": 760,
+          "sensitivity_den": 1000,
+          "specificity_num": 980,
+          "specificity_den": 1000,
+          "expected_fp_num": 20,
+          "expected_fp_den": 1000,
+          "biological_mechanism": "Detección antigénica temprana de la proteína no estructural NS1 secretada durante la fase virémica."
+        },
+        {
+          "default_step_order": 2,
+          "test_name": "ELISA IgM Dengue",
+          "sensitivity_num": 850,
+          "sensitivity_den": 1000,
+          "specificity_num": 920,
+          "specificity_den": 1000,
+          "expected_fp_num": 80,
+          "expected_fp_den": 1000,
+          "biological_mechanism": "Inmunoensayo enzimático de captura de anticuerpos IgM específicos generados en fase inmune."
+        },
+        {
+          "default_step_order": 3,
+          "test_name": "RT-PCR Multiplex DENV",
+          "sensitivity_num": 940,
+          "sensitivity_den": 1000,
+          "specificity_num": 995,
+          "specificity_den": 1000,
+          "expected_fp_num": 5,
+          "expected_fp_den": 1000,
+          "biological_mechanism": "Amplificación molecular multiplex por RT-PCR para detección y tipificación de ARN de DENV 1–4."
+        }
+      ]
+    }
+  ]
+}
