@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "med-diagnosis"
-version = "0.2.0"
+version = "0.1.0"
 description = "Interactive Sequential Bayesian Inference Simulator for stepped medical diagnostics (COVID-19, Pulmonary TB, Dengue)."
 readme = "README.md"
 requires-python = ">=3.11"

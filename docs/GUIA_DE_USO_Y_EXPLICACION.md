@@ -29,7 +29,7 @@ Toma exactamente ese proceso médico escalonado y calcula cómo cambia la probab
 
 ## 2. De dónde se obtienen los datos epidemiológicos y clínicos
 
-Ningún número del simulador es inventado. Todos los parámetros provienen de la **Tabla 1** del estudio del proyecto ([MateDiscreta.pdf](file:///Users/hd/Projects/github.com/Aireck2/med-diagnosis/MateDiscreta.pdf)), que consolida reportes oficiales de vigilancia epidemiológica en el Perú y guías clínicas internacionales.
+Ningún número del simulador es inventado. Todos los parámetros provienen de la **Tabla 1** del informe técnico del proyecto ([INFORME.md](../INFORME.md)), que consolida reportes oficiales de vigilancia epidemiológica en el Perú y guías clínicas internacionales.
 
 ### 2.1 Qué mide cada parámetro
 
@@ -51,9 +51,9 @@ En cada enfermedad se usan tres datos básicos:
 
 Para que cualquier persona pueda auditar los datos y la aplicación funcione sin conexión a internet ni servidores externos, la capa de datos (`src/med_diagnosis/data/`) se organiza en tres archivos:
 
-1. [epidemiology_seed.json](file:///Users/hd/Projects/github.com/Aireck2/med-diagnosis/src/med_diagnosis/data/epidemiology_seed.json): archivo JSON legible donde están declaradas las 3 patologías, los 8 estratos sintomáticos iniciales, las 9 pruebas diagnósticas (como fracciones exactas, por ejemplo `730 / 1000` para `73.0 %`) y las 7 referencias bibliográficas completas.
-2. [schema.sql](file:///Users/hd/Projects/github.com/Aireck2/med-diagnosis/src/med_diagnosis/data/schema.sql): estructura relacional SQLite en Tercera Forma Normal (tablas `pathologies`, `prevalence_scenarios`, `diagnostic_tests`, `citations` y `pathology_citations`) con reglas de integridad que impiden cargar probabilidades fuera del rango válido.
-3. [epidemiology.db](file:///Users/hd/Projects/github.com/Aireck2/med-diagnosis/src/med_diagnosis/data/epidemiology.db) y [database.py](file:///Users/hd/Projects/github.com/Aireck2/med-diagnosis/src/med_diagnosis/data/database.py): base de datos SQLite que la aplicación consulta en modo de solo lectura al iniciar.
+1. [epidemiology_seed.json](../src/med_diagnosis/data/epidemiology_seed.json): archivo JSON legible donde están declaradas las 3 patologías, los 8 estratos sintomáticos iniciales, las 9 pruebas diagnósticas (como fracciones exactas, por ejemplo `730 / 1000` para `73.0 %`) y las 7 referencias bibliográficas completas.
+2. [schema.sql](../src/med_diagnosis/data/schema.sql): estructura relacional SQLite en Tercera Forma Normal (tablas `pathologies`, `prevalence_scenarios`, `diagnostic_tests`, `citations` y `pathology_citations`) con reglas de integridad que impiden cargar probabilidades fuera del rango válido.
+3. [epidemiology.db](../src/med_diagnosis/data/epidemiology.db) y [database.py](../src/med_diagnosis/data/database.py): base de datos SQLite que la aplicación consulta en modo de solo lectura al iniciar.
 
 ---
 
@@ -72,7 +72,7 @@ Cuando alguien pregunta *"¿Pero qué cuenta hace exactamente el Teorema de Baye
    El resultado final de la Prueba 1 se convierte automáticamente en el punto de partida (la nueva probabilidad previa) de la Prueba 2, y el resultado de la Prueba 2 pasa a ser el punto de partida de la Prueba 3.
 
 > [!TIP]
-> **Por qué el simulador usa fracciones exactas (`Fraction`):** En [bayes.py](file:///Users/hd/Projects/github.com/Aireck2/med-diagnosis/src/med_diagnosis/domain/bayes.py), Python no redondea decimales durante los cálculos intermedios. Opera con fracciones racionales exactas (como `730 / 1321`). Gracias a eso, si cambias el orden de las pruebas, el resultado final coincide de manera exacta sin errores de redondeo.
+> **Por qué el simulador usa fracciones exactas (`Fraction`):** En [bayes.py](../src/med_diagnosis/domain/bayes.py), Python no redondea decimales durante los cálculos intermedios. Opera con fracciones racionales exactas (como `730 / 1321`). Gracias a eso, si cambias el orden de las pruebas, el resultado final coincide de manera exacta sin errores de redondeo.
 
 ---
 
@@ -98,7 +98,7 @@ En la columna izquierda tienes dos formas de empezar:
 * **Opción A (ideal para exposiciones): "Casos demostrativos rápidos"**
   Despliega el primer menú y elige uno de los 4 escenarios pedagógicos preconfigurados:
   1. *Sesgo de Tasa Base en Tuberculosis (0.15 %)*: muestra cómo una radiografía positiva sola da `1.17 %` y cómo las 3 pruebas positivas llevan al `97.17 %`.
-  2. *Tamizaje Asintomático en COVID-19 (1.5 %)*: muestra por qué un antígeno positivo en una persona sin síntomas apenas da `55.26 %` (casi como lanzar una moneda) hasta que se confirma con RT-PCR (`99.57 %`).
+  2. *Tamizaje Asintomático en COVID-19 (1.5 %)*: muestra por qué un antígeno positivo en una persona sin síntomas apenas da `55.26 %` (casi como lanzar una moneda) hasta que se confirma con RT-PCR (`99.58 %`).
   3. *Secuencia con Resultados Discordantes en COVID-19 (12.0 %)*: muestra qué pasa cuando el antígeno da `+`, la prueba serológica contradice con `-` y la RT-PCR desempata con `+`.
   4. *Alta Prevalencia en Brote de Dengue (22.0 %)*: muestra cómo, en pleno brote epidémico, la primera prueba rápida NS1 positiva ya salta al `91.47 %` y con ELISA IgM llega al `99.13 %`.
 
@@ -143,7 +143,7 @@ Debajo de las 4 tarjetas de resumen (Prevalencia Inicial, Probabilidad Posterior
 Porque dos síntomas del mismo paciente (como fiebre y tos) comparten el mismo proceso inflamatorio y están correlacionados entre sí; si los multiplicaras como pruebas separadas violarías el supuesto matemático de **independencia condicional**. En cambio, las guías del CDC Perú y del MINSA ya miden la prevalencia real de la enfermedad dentro de cada grupo sintomático (por ejemplo, `4.5 %` en sintomáticos respiratorios de TB), lo que da un punto de partida $t = 0$ validado epidemiológicamente, y luego se encadenan pruebas de laboratorio que sí usan mecanismos biológicos independientes (rayos X, microscopía y ADN).
 
 **2. "¿Por qué al invertir el orden de las pruebas cambia la curva del medio pero el resultado final da exactamente igual?"**
-Porque bajo el supuesto de independencia condicional (§1.3.4), la probabilidad conjunta de obtener una secuencia de resultados $(O_1, \dots, O_n)$ es simplemente la multiplicación de las probabilidades de cada prueba individual: $\prod_{t=1}^n P(O_t \mid E)$ en enfermos y $\prod_{t=1}^n P(O_t \mid E^c)$ en sanos. Como la multiplicación de fracciones es conmutativa, hacer primero Antígeno y después PCR lleva exactamente al mismo valor final que hacer primero PCR y después Antígeno, aunque en la práctica clínica los hospitales empiezan por la prueba más rápida y accesible.
+Porque bajo el supuesto de independencia condicional (§3.3, punto 4 de [INFORME.md](../INFORME.md)), la probabilidad conjunta de obtener una secuencia de resultados $(O_1, \dots, O_n)$ es simplemente la multiplicación de las probabilidades de cada prueba individual: $\prod_{t=1}^n P(O_t \mid E)$ en enfermos y $\prod_{t=1}^n P(O_t \mid E^c)$ en sanos. Como la multiplicación de fracciones es conmutativa, hacer primero Antígeno y después PCR lleva exactamente al mismo valor final que hacer primero PCR y después Antígeno, aunque en la práctica clínica los hospitales empiezan por la prueba más rápida y accesible.
 
 **3. "¿Este programa sirve para diagnosticar a un paciente real en una clínica?"**
 No. El simulador incluye una advertencia permanente indicando que es una herramienta académica de modelado matemático y apoyo pedagógico. Trabaja con promedios poblacionales estáticos de literatura oficial y no reemplaza el juicio clínico de un médico.
